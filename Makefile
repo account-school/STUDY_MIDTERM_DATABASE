@@ -1,14 +1,16 @@
-all: listTest
+all: main
 
-listTest: list.o listTest.o 
-	cc -g list.o listTest.o -o listTest
+main: main.o database.o
+	gcc main.o database.o -o main
 
-list.o: list.c list.h
-	cc -g -c list.c
 
-listTest.o: listTest.c list.h
-	cc -g -c listTest.c
+main.o: main.c database.h
+	gcc -c main.c database.h 
+
+
+database.o: database.c database.h
+	gcc -c database.c database.h
+
 
 clean:
-	rm -rf *.o *~ listTest
-	
+	rm *.o  main
