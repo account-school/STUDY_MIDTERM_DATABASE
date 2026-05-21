@@ -2,8 +2,9 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<string.h>
+#include "database.h"
 
-
+/*
 typedef struct Person {
     int age_seasons;
     char* name;
@@ -13,21 +14,27 @@ typedef struct Person {
 } Person;
 
 
-Person* personConstructor(int age_s, char* nam, int num_inter, char*** interest, int merp) {
+Person* personConstructor(int age_s, char* nam, int num_inter, char** interest, int merp) {
     Person* personPtr = malloc(sizeof(Person));
     personPtr->age_seasons = age_s;
     personPtr->name = nam;
     personPtr->numInterests = num_inter;
     personPtr->interests = (char**)malloc(num_inter * sizeof(char*));
     for (int n = 0; n <num_inter; n++) {
-        (personPtr->interests)[n] = *(interest[n]);
+        (personPtr->interests)[n] = interest[n];
     }
     personPtr->merp_score = merp;
     return personPtr;
 }
 
 
-
+void printPerson(Person* ptr) {
+    printf("Age in Seasons: %d\n Name: %s\n Number of Interests: %d\n Interest list::\n[\n",ptr->age_seasons,ptr->name,ptr->numInterests);
+    for (int n = 0; n < ptr->numInterests; n++) {
+        printf("%s, \n",ptr->interests[n]);
+    }
+    printf("]\nMerp score: %d\n",ptr->merp_score);
+}
 
 
 
@@ -54,16 +61,17 @@ void recordPersonData(Person* ptr) {
     //implicit else
 
     //implict error detection and print
-    if (fprintf(fp,"%d;%s;%d;[",ptr->age_seasons,ptr->name,ptr->numInterests) <= 0) {
+    if (fprintf(fp,"%d %s %d ",ptr->age_seasons,ptr->name,ptr->numInterests) <= 0) {
         printError(fp);
         return;
     }
 
     for (int n = 0; n < ptr->numInterests; n++) {
-        fprintf(fp,"%s,",((ptr->interests)[n]));
+        fprintf(fp,"%s ",((ptr->interests)[n]));
     }
-    fputs("];",fp);
+    fputs("",fp);
     fprintf(fp,"%d\n",ptr->merp_score); 
+    fclose(fp);
 
 }
 
@@ -71,17 +79,58 @@ void recordPersonData(Person* ptr) {
 Person* reconstructPerson(char* name) {
     // to finish tmrw.
 
-    return NULL;
+    char* filename = calloc(200,sizeof(char));
+    strcat(filename,name);
+    strcat(filename,".txt");
+    FILE* fp = fopen(filename,"r");
+    
+    if (ferror(fp)) {
+        fprintf(stderr,"Error %d: %s",errno,strerror(errno));
+        return NULL;
+    }
+    //rewind(fp);
+
+    fseek(fp,0,SEEK_SET);
+
+    int ag, numInt;
+    char* useless = calloc(200,sizeof(char));
+    
+    rewind(fp);
+
+    fscanf(fp,"%d %s %d",&ag, useless, &numInt);
+    
+    //printf("%d %s %d ",ag, name, numInt);
+    
+    char** interests = (char**)calloc(numInt,sizeof(char*));
+    char *word;
+    for (int n = 0; n < numInt; n++) {
+        word = (char*)calloc(200,sizeof(char));
+        fscanf(fp,"%s", word);
+        interests[n] = word;
+        //printf("%s ",interests[n]);
+        
+    }
+    int merp;
+    fscanf(fp,"%d",&merp);
+
+    //printf("%d\n",merp);
+    fclose(fp);
+
+    Person* newPerson = personConstructor(ag,name,numInt,interests,merp);
+    return newPerson;
     
     
 
 }
+    */
 int main () {
     char* interest1 = "cars";
-    char* interest2 = "Computer Science";
-    char* interest3 = "horror movies";
-    char** interests[3] = {&interest1, &interest2, &interest3};
+    char* interest2 = "Computer_Science";
+    char* interest3 = "horror_movies";
+    char* interests[3] = {interest1, interest2, interest3};
     Person* david = personConstructor(80,"David",3,interests,4);
     recordPersonData(david);
+    david = reconstructPerson("David");
+    printPerson(david);
     return 0;
 }

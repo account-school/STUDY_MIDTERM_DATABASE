@@ -1,1 +1,1 @@
-80;David;3;[cars,Computer Science,horror movies,];4
+80 David 3 cars Computer_Science horror_movies 4
